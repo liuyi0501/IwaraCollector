@@ -1,0 +1,15 @@
+<h1>Welcome To Wobbay</h1>
+<strong><a href="/">Home</a>  <a href="/page">Videos</a>  </strong>
+<script src="/js/jquery.js" type="text/javascript"></script> 
+<script src="/js/jquery.lazyload.js" type="text/javascript"></script> 
+<script type="text/javascript"> 
+    $(function() { 
+        $("img:below-the-fold").lazyload({ 
+            placeholder: "img/grey.gif", 
+            event: "sporty"
+        }); 
+    }); 
+    $(window).bind("load", function() { 
+        var timeout = setTimeout(function() { $("img").trigger("sporty") }, 5000); 
+    }); 
+</script> 

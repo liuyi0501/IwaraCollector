@@ -1,0 +1,96 @@
+
+<html>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+        var url = '<%= download %>';
+        console.log(url)
+    </script>
+    <head>
+        <title><%= V_title %> - <%=siteType%></title>
+    </head>
+    <body width="1280">
+        <header><%- header %></header>
+        <h2><%= V_title %></h2>
+        <% var picture = thumb.replace("/styles/thumbnail/public/","/")%>
+        <img src="<%= picture %>" width="1280" height="720" alt="<%= V_title %>"/>
+        <br/>
+        <h2>Author:<%= author %></h2>
+        <br/>
+        <h3>切勿轻信视频及播放器上的任何广告！！！</h3>
+        <% for(var i = 0;i < video.length ; i++){ %>
+        <strong><%= video[i].resolution %></strong><br/>
+        <iframe width="1280" height="720" frameborder="0" scrolling="no" allowfullscreen="true" data-lock="0" data-pass="1" data-auto="1" data-seek="0" data-code="1" data-trys="0" data-advs="0" data-link="" data-time="5" data-chat="0" data-word="VAt6ZW/5Z+O" data-stat="1" data-pars="https://www.33tn.cn/?url=" data-play="YSuaHR0cHM6Ly92b2Q4LndlbnNoaWJhb3dlbmJlaS5jb20vMjAyMjAxMTYvaTB1UkYxeEovaW5kZXgubTN1OA==" data-next="" src="https://www.33tn.cn/?url=<%= video[i].uri %>"></iframe>
+        <br/>
+        <% } %>
+        
+
+        
+        <h3>切勿轻信视频及播放器上的任何广告！！！</h3>
+        <br/>
+        <strong>API:</strong>
+        <a href="<%= download %>" id = "download"><%= download %></a>
+        <br/>
+        <br/>
+        <strong>API data:<%= JSON.stringify(video) %></strong>
+        <br/>
+        <br/>
+        <strong>Description:</strong>
+        <p width="1280" class="page"><%- description %></p>
+        <br/>
+        <strong>Others:</strong><br/>
+        <% try{ %>
+        <li><strong>Thumbnail Number: <%= thumb.match(/-?[1-9]\d*/) %></strong></li>
+        <li><strong>Another Thumbnails:</strong></li>
+        <% var Tnum = thumb.match(/-?[1-9]\d*/)%>
+        <% var Num = thumb.match(/-?[1-9]\d*/g)[2]; %>
+        <% array = ["0001","0002","0003","0004","0005","0006","0007","0008","0009","0010","0011","0012","0013","0014","0015"] %>
+        <% for(var i = 0001 ; i <= 15;i++){ %>
+            <h5><%= i %></h5>
+            <img src="https://i.iwara.tv/sites/default/files/videos/thumbnails/<%= Tnum %>/thumbnail-<%= Tnum %>_<%= array[i-1] %>.jpg" heigh="450" width="660" alt="<%= V_title+"-NO."+i %>">
+            <br/>
+            <% } %>
+        <% }catch(err){%>
+            <% if(err){%>
+                <% console.error(err) %>
+            <% } %>
+        <% }%>
+        <br/>
+        <h3>Origin:</h3>
+        <a href="<%= origin %>"><%= origin %></a>
+        <br/>
+        <br/>
+        <br/>
+        <footer><%- footer %></footer>
+        
+        
+        
+    </body>
+    <style>
+    .page{
+    width: 50%;
+    word-wrap:break-word;
+    border-bottom: 0;
+    font-size: 1.1em;
+    line-height: 0.9em;
+    letter-spacing: 0px;
+    margin-top: 7.5px;
+    word-wrap: break-word;
+    }
+    .title {
+    width: 50%;
+    word-wrap:break-word;
+    border-bottom: 0;
+    font-size: 1.1em;
+    line-height: 0.9em;
+    letter-spacing: 0px;
+    margin-top: 7.5px;
+    word-wrap: break-word;
+    }
+    .btns-hamburger{
+        display:none;
+    }
+    body{
+        word-wrap: break-word;
+    }
+    </style>
+</html>

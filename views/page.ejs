@@ -1,0 +1,101 @@
+<html>
+    <head>
+        <title>第<%= page %>页 - <%=siteType%></title>
+    </head>
+    <body>
+        <header><%- header %></header>
+        <h2>第<%= page %>页 - <%=siteType%></h2>
+        <h3>Sort By: 
+            <%if(sort == "date"){ %>
+            <strong><%= sort %></strong>
+            <% }else{ %>
+            <a href = "/page">date</a>
+            <%}%>
+            <%if(sort == "like"){ %>
+            <strong><%= sort %></strong>
+            <% }else{ %>
+            <a href = "/like">likes</a>
+            <%}%>
+        
+        </h3>
+        <h2>无法查看图片？<a href="/proxy">点击这里</a></h2>
+        <h2>本网站仅供交流学习<br/>极其不建议每个视频都点一遍<br/>接口稳定性未知</h2>
+        
+        <% for(i = 0;i < video.length;i++){ %>
+        <!-- 废案
+            <% if(i % 2 == 1){ %>
+            
+                <%- '<a href = "' + video[i-1]+ '"><img src = "' + thumb[i-1] + '"/></a>' %>
+                <%- '<a href = "' + video[i]+ '"><img src = "' + thumb[i] + '"/></a>' %>
+                <%- '<br/>' %>
+            <div class="title">
+                <%- '<a href = "/video/' + video[i-1]+ '">'+ V_title[i-1] + '</a>' %>
+                <%- '<a href = "/video/' + video[i]+ '">'+ V_title[i] + '</a>' %>
+                <%- '<br/>' %>
+            </div>
+            <% } %>
+        -->
+            <%- '<a href = "/video/' + video[i]+ '"><img src = "' + thumb[i] + '" alt="'+ V_title[i] +'" heigh="540" width="792"/></a>' %>
+            <%- '<br/>' %>
+            <%- '<a href = "/video/' + video[i]+ '">'+ V_title[i] + '</a>' %>
+            <%- '<br/>' %>
+        <% } %>
+        <br/>
+        <br/>
+        <br/>
+        <br/>
+        
+        <% if(sort == "date"){ %>
+        
+        <div class="page">
+            <% if(page != 1){ %>
+            <a href="/page">第一页</a>
+            <%- '<a href="/page?p='+ String(Number(page)-1) +'">上一页</a>'%>
+            <% } %>
+            <%- '<strong>' + page +'</strong>'%>
+            <%- '<a href="/page?p='+ String(Number(page)+1) +'">下一页</a>'%>
+        </div>
+        
+        <% }else{ %>
+        
+        <div class="<%= sort %>">
+            <% if(page != 1){ %>
+            <a href="/<%= sort %>">第一页</a>
+            <%- '<a href="/'+sort+'?p='+ String(Number(page)-1) +'">上一页</a>'%>
+            <% } %>
+            <%- '<strong>' + page +'</strong>'%>
+            <%- '<a href="/'+sort+'?p='+ String(Number(page)+1) +'">下一页</a>'%>
+        </div>
+        
+        
+        <% } %>
+        <br/>
+        <br/>
+        <br/>
+        <footer><%- footer %></footer>
+        
+        
+    </body>
+    <style>
+    .page{
+    width: 50%;
+    word-wrap:break-word;
+    border-bottom: 0;
+    font-size: 1.1em;
+    line-height: 0.9em;
+    letter-spacing: 0px;
+    margin-top: 7.5px;
+    word-wrap: break-word;
+    }
+    .title {
+    width: 50%;
+    word-wrap:break-word;
+    border-bottom: 0;
+    font-size: 1.1em;
+    line-height: 0.9em;
+    letter-spacing: 0px;
+    margin-top: 7.5px;
+    word-wrap: break-word;
+    }
+    </style>
+</html>
