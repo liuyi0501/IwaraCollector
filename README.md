@@ -1,3 +1,6 @@
+#官方漏洞已修，该程序已死。
+
+
 # IwaraCollector
 Iwara网站数据爬取及本地化
 # 前言
