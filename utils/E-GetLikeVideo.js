@@ -81,7 +81,7 @@ function VideoGet(video, thumb, q) {
     }
     let second = Date.now();
 
-    while (Number(Date.now()) <= Number(second) + 2000) { //暂停2秒，防止被墙拉黑
+    while (Number(Date.now()) <= Number(second) + 100) { //暂停0.1秒，防止被墙拉黑
         //等待1秒，什么都不做
     }
     console.log("---------")
@@ -140,9 +140,12 @@ function GetAllVideo() {
         console.log("第一页请求发送并接收完毕")
         //console.log(response.data);
         var data = response.data;
+        
         //console.log("the result is" + data);
         var $ = cheerio.load(data);
+        
         var pages = $('.pager-last').find('a').attr("href")
+        
         //console.log(pages.indexOf('page='))
         var start = pages.indexOf('page=') 
         var PageLast = ""
@@ -185,6 +188,11 @@ function GetAllVideo() {
                 if (err) console.log(err);
         })
         GetPage(PageLast)
+    }).catch(function(err){
+        if(err){
+            console.log(err);
+            GetAllVideo();
+        }
     })
     
 

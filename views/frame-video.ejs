@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+    
+    <link rel="shortcut icon" href="https://czse7cxw.xyz/item/6177fd7fddaef1f9bcc533aa.png">
+    <link rel="icon" href="https://czse7cxw.xyz/item/6177fd7fddaef1f9bcc533aa.png">
+    <link rel="apple-touch-icon-precomposed" href="https://czse7cxw.xyz/item/6177fd7fddaef1f9bcc533aa.png">
+    <meta name="msapplication-TileImage" content="https://czse7cxw.xyz/item/6177fd7fddaef1f9bcc533aa.png">
+    <script src="/js/jquery.js" type="text/javascript"></script> 
+    <script src="/js/jquery.lazyload.js" type="text/javascript"></script> 
+    <!-- 图片懒加载 -->
+    <!-- MDUI CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/css/mdui.min.css"
+      integrity="sha384-cLRrMq39HOZdvE0j6yBojO4+1PrHfB7a9l5qLcmRm/fiWXYY+CndJPmyu5FV/9Tw"
+      crossorigin="anonymous"
+    />
+    
+    <!-- MDUI JavaScript -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/mdui@1.0.1/dist/js/mdui.min.js"
+      integrity="sha384-gCMZcshYKOGRX9r6wbDrvF+TcCCswSHFucUzUPwka+Gr+uHgjlYvkABr95TCOz3A"
+      crossorigin="anonymous"
+    >
+    </script>
+    
+    
+    
+    
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script><!-- JQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/pearplayer@latest"></script><!!-- PearPlayer -->
+    <script>
+        /**
+        * 第一个参数为video标签的id或class
+        * opts是可选的参数配置
+        */
+    if (PearPlayer.isMSESupported()) {
+        var player = new PearPlayer('.video'，{
+                                                scheduler: 'IdleFirst',
+                                                debug: true
+                                                });
+    }
+    </script>
+    <head>
+        <title><%= V_title %> - <%=siteType%></title>
+    </head>
+    <body class="mdui-theme-layout-dark">
+        <!-- Main -->
+        <div class="main">
+            <h2 class="text mdui-text-color-theme-text"><%= V_title %></h2>
+            <br/>
+            <br/>
+
+            <!-- 预览图 赋值 -->
+            <% thumb = thumb.replace("i.iwara.tv","redir.wobbay.xyz") %>
+            <% var picture = thumb.replace("/styles/thumbnail/public/","/")%>
+
+            <!-- 检测是否有视频 -->
+            <% if(video.length > 0){ %>
+            
+<div class="mdui-panel mdui-panel-popout" mdui-panel>
+            <h3>切勿轻信视频上的任何广告！！！</h3>
+            <% for(var i = 0;i < video.length ; i++){ %>
+            
+  <div class="mdui-panel-item <%= i==0?"mdui-panel-item-open":"" %>">
+    <div class="mdui-panel-item-header"><%= video[i].resolution %></div>
+    <%- i==0?"":'<div class="mdui-panel-item-summary">点击展开</div>' %>
+
+
+        <div class="mdui-panel-item-body">
+            <iframe scrolling="no" id="Player" allowfullscreen="true" class="video mdui-video-fluid" src="https://player.2481asd.com/?url=https://redirect.wobbay.xyz/https:<%= video[0].uri %>" preload="auto" width="960" height="540" poster="<%= picture %>" style="width:640px;height:360px" controls>您的浏览器不支持<% "<iframe>" %>标签
+            </iframe>
+            <br/>
+    </div>
+  </div>
+            <% } %>
+            <br/>
+</div>
+            <% }else{ %>
+                <img class="mdui-img-fluid mdui-hoverable mdui-img-rounded" src="https:<%= picture %>" style="width:960;heigh:540;" alt="<%= V_title %>" loading="lazy" />
+            <br/>
+                <strong>无预览视频,或此视频为YouTuBe外链视频</strong>
+            <% } %>
+
+            <h2 class="light-text mdui-text-color-theme-text">Author:<%= author %></h2>
+            <br/>
+            <strong>
+            Post time: <%= time %>
+            </strong>
+            <br/>
+            <strong>Download(无需翻墙)<br/>
+            <% for(var i = 0;i <video.length;i++){ %>
+                <a href="https:<%=video[i].uri.replace(/[a-zA-Z]+\.[a-zA-Z]+.[a-zA-Z]+/,function(match){var book = {"mikoto.iwara.tv": "mikoto.wobbay.xyz","sukone.iwara.tv":"sukone.wobbay.xyz","xin.iwara.tv":"xin.wobbay.xyz","piko.iwara.tv":"piko.wobbay.xyz","merli.iwara.tv":"merli.wobbay.xyz","uta.iwara.tv":"uta.wobbay.xyz","ruko.iwara.tv":"ruko.wobbay.xyz","momo.iwara.tv":"momo.wobbay.xyz","cul.iwara.tv":"cul.wobbay.xyz","yukari.iwara.tv":"yukari.wobbay.xyz","aku.iwara.tv":"aku.wobbay.xyz","miki.iwara.tv":"miki.wobbay.xyz","uni.iwara.tv":"uni.wobbay.xyz","luo.iwara.tv":"luo.wobbay.xyz","hime.iwara.tv":"hime.wobbay.xyz"};if(book[match]){result = book[match];}else{result = match;};return result;}) %>" target="_blank"><i class="mdui-icon material-icons">&#xe2c4;</i><%=video[i].resolution %></a>
+                <br/>
+            <% } %>
+            
+            </strong>
+            
+            <strong>Description:</strong>
+            <p width="1280" class="page"><%- description %></p>
+        </div>
+        <!-- /main -->
+        <!-- Footer -->
+        <footer>
+            <strong>Powered by <a href="https://github.com/liuyi0501">2481asd</a></strong>
+<strong>大约每天更新数据</strong>
+<strong>本程序仅用来学习交流，<br/>所有信息均来源网络。如有侵权，请联系我service@wobbay.xyz<br/></strong>
+<strong><h3>Everyone All Over 18-year-old</h3></strong>
+<a title="Real Time Web Analytics" href="http://clicky.com/101351425"><img alt="Clicky" src="//static.getclicky.com/media/links/badge.gif" border="0" /></a>
+        <script async src="//static.getclicky.com/101351425.js"></script>
+        <noscript><p><img alt="Clicky" width="1" height="1" src="//in.getclicky.com/101351425ns.gif" /></p></noscript>
+        </footer>
+        <!-- /Footer -->
+    </body>
+    <style>
+    .light-text{
+        font-weight: 300;
+        font-style: italic;
+    }
+    .text{
+        font-weight:500;
+    }
+    .page{
+    width: 100%;
+    word-wrap:break-word;
+    border-bottom: 0;
+    font-size: 1.1em;
+    line-height: 0.9em;
+    letter-spacing: 0px;
+    margin-top: 7.5px;
+    word-wrap: break-word;
+    }
+    .title {
+    width: 50%;
+    word-wrap:break-word;
+    border-bottom: 0;
+    font-size: 1.1em;
+    line-height: 0.9em;
+    letter-spacing: 0px;
+    margin-top: 7.5px;
+    word-wrap: break-word;
+    }
+    .btns-hamburger{
+        display:none;
+    }
+    body{
+        word-wrap: break-word;
+    }
+    </style>
+</html>

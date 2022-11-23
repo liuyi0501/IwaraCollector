@@ -1,0 +1,175 @@
+<html>
+    <head>
+        <title>搜索页 - <%= title %></title>
+    </head>
+    <% 
+    if ( !cat )
+        var cat = "video"
+    if ( !key )
+        var key;
+    %>
+    <body class="mdui-theme-layout-dark ">
+        <%- include("../../config/header.html") %>
+        <div class="search mdui-container">
+            <form src="/search" type="GET">
+            <div class="mdui-textfield">
+                <h1> Search - 搜索 </h1>
+                <h2>Key - 关键词</h2>
+                <input class="mdui-textfield-input" type="text" placeholder="KeyQuery - 关键词" name="key" <%= key?'value='+key:"" %> />
+            </div>
+            搜索：
+            <label class="mdui-radio">
+                <input type="radio" name="cat" value="video" <%= cat == "video"?"checked":"" %> />
+                <i class="mdui-radio-icon"></i>
+                视频
+            </label>
+            <label class="mdui-radio">
+                <input type="radio" name="cat" value="user" <%= cat == "user"?"checked":"" %> />
+                <i class="mdui-radio-icon"></i>
+                用户
+            </label>
+            <br/>
+            <br/>
+            站点：
+            <label class="mdui-radio">
+                <input type="radio" name="site" value="www" <%= site == "www"?"checked":"" %> />
+                <i class="mdui-radio-icon"></i>
+                WWW
+            </label>
+            <label class="mdui-radio">
+                <input type="radio" name="site" value="ecchi" <%= site == "ecchi"?"checked":"" %> />
+                <i class="mdui-radio-icon"></i>
+                Ecchi
+            </label>
+                <button class="mdui-btn mdui-color-theme-accent mdui-ripple">
+                    <i class="mdui-icon material-icons">search</i>Go
+                </button>
+            </form>
+        </div>
+        <% if ( searchData ) { %>
+        <div class="hot mdui-container">
+            <ul>
+            <% for ( j = 0 ; j < searchData.length ; j ++ ) {  %>
+                <% if ( searchData[j].member == "searchNum" ) { %>
+                    <string>全站共计搜索：<%= searchData[j].score %> 次</strong>
+                <% } %>
+            <% } %>
+            
+            <br/><strong>热门搜索词：</strong><br/>
+            <% if ( cat == "video"){ %>
+            <% for ( j = 0 ; j < searchData.length ; j ++ ) {  %>
+                <% if ( searchData[j].member != "searchNum" ) { %>
+                    <li><%= j %>. <%= searchData[j].member %> --- <%= searchData[j].score %> 次 </li>
+                <% } %>
+            <% } %>
+            <% } else { %>
+                <h3 class='mdui-center'>用户搜索暂不提供热门搜索词</h3>
+            <% } %>
+            </ul>
+        </div>
+        <% } %>
+        <div class="main mdui-container">
+            <% if ( data ) { %>
+                <h2>搜索结果</h2>
+                <ul>
+                <% if ( key == "" ) { %>
+                    <h2>搜索值不能为空</h2>
+                <% } %>
+                <% if ( cat == "video" && key != "" ) { %>
+                    <p stype="font-size: large;">搜索都在客户端运行<br/>所以你在搜索时会非常卡顿<br/>多等等</p>
+                    <script>
+                        let json = <%- JSON.stringify(data) %>;
+                        let key = "<%= key %>";
+                        let site = "<%= site %>";
+                        let it = 0;
+                        for ( i = 0 ; i < json.length ; i ++ ) {
+                            let _data = JSON.parse(json[i].member)
+                            if ( _data.title.indexOf(key) != -1 ){
+                                it++;
+                                document.write('<li>');
+                                    document.write('<a href="/'+site+'/video/'+ _data.vid +'">');
+                                        document.write("<img src=https://redirect.wobbay.xyz/"+_data.thumb+" width=600 height=338 loading=lazy/><br/>");
+                                        document.write(_data.title);
+                                    document.write('</a>');
+                                document.write('</li>');
+                            }
+                        }
+                        if ( it == 0 ) {
+                            document.write( "<h3 class='mdui-center'>没有搜索到</h3>" )
+                        }
+                    </script>
+                <% } else if ( cat == 'user' && key != "") { %>
+                    <div id="searchList"></div>
+                    <script>
+                        let json = <%- JSON.stringify(data) %>;
+                        let site ="<%= site %>";
+                        let it = 0;
+                        //json = JSON.parse(json);
+                        var searchUser = [];
+                        //alert(site);
+                        for ( i = 0; i < json[1].length; i++ ){
+                            let user;
+                            //alert(site, user);
+                            if(site == 'ecchi'){
+                            user = json[1][i].replace('iwara:ecchi:video:v2:user:','');
+                            //alert(user)
+                            }else{
+                                user = json[1][i].replace('iwara:www:video:v2:user:','');
+                            }
+                            
+                            //alert(user);
+                            if(user.indexOf('data') != -1){
+                                continue;
+                            } else {
+                            //alert(user);
+                                console.log(user);
+                                searchUser.push(user);
+                                it++;
+                            }
+                        }
+                        let key = "<%= key %>";
+                        if ( it == 0 ) {
+                            document.write( "<h3 class='mdui-center'>没有搜索到</h3>" )
+                        } else if( key.length < 3){
+                            document.write( "<h3 class='mdui-center'>关键词至少三个字符，请重新输入</h3>" )
+                        } else {
+                            for ( i = 0; i < searchUser.length; i++ ){
+                                let url = '/api/user/<%= site %>/'+searchUser[i];
+                                $.getJSON(url, function(data) {
+                                        console.log(data);
+                                        if(data.code!=200)alert(data.message);
+        $('#searchList').append('<h3 class="User '+data.data.id+' mdui-row">'+
+        '<div class="mdui-col-xs-3"><a href="/users/'+site+'/'+data.data.id+'">'+
+            '<img style="width:100%" src="https://redirect.wobbay.xyz/https:'+data.data.picture+'load="lazy"/><br/>'+
+            data.data.nickname+
+        '</a></div><div class="video mdui-row-xs-3"></div>'+
+        '</h3>');
+        let thisUserVideos = [];
+        let length = data.data.videos.length>=2?2:data.data.videos.length;
+        for ( q = 0 ; q < length; q++ ){
+            thisUserVideos.push(data.data.videos[q].member);
+        }
+        
+        let url = '/api/video/'+site+'/list.json?videos='+thisUserVideos.join(',');
+        $.getJSON(url, function(data2) {
+            for ( j = 0 ; j < data2.data.length ; j++){
+                $('.'+data.data.id).children('div.video').append('<div class="mdui-col">'+
+                '<a href="/<%= site %>/video/'+data2.data[j].id+'">'+
+                    '<img style="width:100%" src="https://redirect.wobbay.xyz/https:'+data2.data[j].thumb+'" loading="lazy"/><br/>'+
+                    data2.data[j].title+
+                '</a>'+
+                '</div>')
+            }
+        })
+        })	//END getJSON
+                        	
+                            }
+                        }
+                    </script>
+                <% }/* END if cat */ %>
+                </ul>
+            <% } %>
+        </div>
+        <%- include("../../config/footer.html") %>
+    </body>
+</html>

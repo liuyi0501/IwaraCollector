@@ -1,19 +1,23 @@
 <html>
     <head>
         <title><%= title %></title>    
+        <meta name ="rating" content="adult">
     </head>
-    <body>
-        <header><%- header %></header>
-        <h2><%= title %></h2>
-        <h2><a href="/www">www</a></h2>
-        <h2><a href="/page">ecchi</a></h2>
+    <body class="mdui-theme-layout-dark">
+        <header><%- include("../config/header.html") %></header>
+        
+        
+        <!-- main -->
+        <div class="main  mdui-center below-the-fold">
+        <h1><%= title %></h1>
+        <h2><a href="/www/page">数据可视化：Iwara主站</a></h2>
+        <h2><a href="/ecchi/page">数据可视化：Iwara里站</a></h2>
         <strong width = "1280" style = "word-wrap: break-word;">This is a process which can crawling ecchi.iwara.tv. And it is used to service for someone that are forbidden to connect to the website. </strong>
-        <% a.forEach(function(item){ %>
-                        <li><%= item %></li>
-        <% })%>
         <br/>
         <br/>
         <br/>
+        </div>
+        <!-- /main -->
         <footer><%- footer %></footer>
 
         

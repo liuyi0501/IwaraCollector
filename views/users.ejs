@@ -1,0 +1,135 @@
+<%try{%>
+<!-- nickname:json.nickname, -->
+<!-- picture: json.picture, -->
+<!-- description: json.description, -->
+<!-- title: title, -->
+<!-- video: video, -->
+<!-- thumb: thumb, -->
+<!-- allpage: allpage, -->
+<!-- JoinDate: JoinDate -->
+<!-- header: header, -->
+<!-- footer: footer -->
+<!-- siteType: siteType -->
+<!-- uid: uid -->
+<!-- catchDate: catchDate -->
+<!-- catchDateInt: catchDateInt-->
+<!-- page: page -->
+<!DOCTYPE html>
+<html>
+    <head>
+    
+    <title><%= uid %></title>
+    <% if (envVersion == 2){ %>
+    <!--jQuery-->
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/vConsole/3.2.0/vconsole.min.js"></script>
+<script>
+//初始化一下就可以了，
+let vConsole = new VConsole();
+</script>
+    <script>
+        console.log('envVersion:',2);
+        let url2 = '/api/user/<%= siteType %>/<%= uid %>?page=<%= Number(page)+1 %>';
+        $.getJSON(url2, function(data) {
+                console.log(data);
+                if(data.code!=200)alert(data.message);
+				$('h1').text(decodeURIComponent(data.data.nickname));
+				$('#picture').attr('src', "https://redirect.wobbay.xyz/https:"+data.data.picture);
+				$('#catchDate').text(Date(data.data.catchTime));
+				$('#joinDate').text(data.data.joinDate);
+				if(data.data.videos.length != 0){
+				    
+				    let videos = '';
+                    for(i = 0 ; i < data.data.videos.length; i++){
+                        if(i + 1 == data.data.videos.length ){
+                            videos = videos + data.data.videos[i].member;
+                        }
+                        else{
+                            videos = videos + data.data.videos[i].member + ',';
+                        }
+                    }
+				
+                    let url3 = '/api/video/<%= siteType %>/list.json?videos='+videos;
+                    $.getJSON(url3, function(data2){
+                        console.log(data2);
+                        for ( q = 0; q < data2.data.length ; q++ ){
+                            $('div.cnode').append('<div class="node mdui-col"><a href="/<%=siteType%>/video/'+data2.data[q].id+'"><img src="https://redirect.wobbay.xyz/https:'+data2.data[q].thumb+'"  width="220" height="150" /></a><br/><a href="/<%=siteType%>/video/'+data2.data[q].id+'">'+data2.data[q].title+'</a></div>')
+                        }
+                    })
+				}
+			});
+    </script>
+    <%}%>
+    </head>
+    <body class="mdui-theme-layout-dark">
+        <div class='header'>
+            <%- header %>
+        </div>
+        <br/>
+        <div class="main mdui-container mdui-center below-the-fold">
+            <div class='data'>
+                <img id="picture" src='<%= picture %>' alt='<%= nickname %>'s picture' loading="lazy"/>
+                <h1><%= nickname %></h1>
+                <br/>
+                <strong>
+                    <h3>JoinDate: <span id="joinDate"><%= JoinDate %></span></h3>
+                </strong>
+                <br/>
+                <strong>爬取日期：<span id="catchDate"><%= catchDate %> -- <%= catchDateInt %>（UTC/GMT 0）</span></strong><br/>
+                <strong>
+                    <h2>Videos:</h2>
+                </strong>
+                <br/>
+                <div class="v2 videos cnode" id="v2_videos">
+                    
+                </div>
+                <% if (envVersion == 2){ %>
+                    <div class="page">
+                        <% if(page != 0){ %>
+                        <a href="/users/<%= siteType %>/<%= uid %>?page=<%= Number(page) %>">上一页</a>
+                        <% } %>
+                        <a href="/users/<%= siteType %>/<%= uid %>?page=<%= Number(page)+1 %>">第<%= page+1 %>页</a>
+                        <a href="/users/<%= siteType %>/<%= uid %>?page=<%= Number(page)+2 %>">下一页</a>
+                    </div>
+                <%}%>
+                
+                <% if (envVersion == 1){ %>
+                <% for(i=0;i<title.length;i++){ %>
+                    <a href='/<%= siteType %><%= video[i].replace('videos','video') %>'>
+                        <img src="https://redirect.wobbay.xyz/https:<%= thumb[i] %>">
+                    </a>
+                    <br/>
+                    <a href='/<%= siteType %><%= video[i].replace('videos','video') %>'>
+                        <%= title[i] %>
+                    </a>
+                    <br/>
+                <% } %>
+                <%}%>
+                <br/>
+                <br/>
+                <% if(allpage!=0){%>
+                    <strong>
+                        <div class="mdui-row">
+                        <% for(var i = 0;i<= allpage;i++){ %>
+                            <a class="mdui-col-xs-2" href='/users/<%= siteType %>/<%= uid %>?p=<%= i %>'>
+                                <strong><%= Number(i)+1 %></strong>
+                            </a>
+                        <% } %>
+                        </div>
+                    </strong>
+                <%}%>
+            <div/>
+            
+        </div>
+        </div>
+        </div>
+        <div class='footer'>
+            <%- footer %>
+        </div>
+    </body>
+</html>
+<%}catch(e){%>
+<script>
+console.warn('<%- e %>');
+</script>
+<%}%>

@@ -1,0 +1,21 @@
+<html>
+    <head>
+        <title>referer</title>
+    </head>
+    <body>
+        <h1>referer展示</h1>
+        <div>
+            <% for(var i = 0;i<domain.length;i++){ %>
+                <p><%= domain[i].member %> === <%= domain[i].score %></p>
+            <% } %>
+        </div>
+        <br/>
+        <p>-----------------------------------------------------</p>
+        <br/>
+        <div>
+            <% for(var i = 0;i<referer.length;i++){ %>
+                <p><%= referer[i].member %> === <%= referer[i].score %></p>
+            <% } %>
+        </div>
+    </body>
+</html>

@@ -1,12 +1,7 @@
-const util = require('../utils/common')
 var fs = require('fs')
-var axios = require('axios');
 var cheerio = require('cheerio');
-var schedule = require('node-schedule');
-var https = require("https")
-var iconv = require("iconv-lite");
 
-async function GetVideo(url, thumb, html) {
+function GetVideo(url, thumb, html) {
     console.log(url)
     if (url.indexOf("ecchi.iwara.tv") == -1) {
         console.log("错误的路径请求：/utils/E-GetVideo.js")
@@ -23,119 +18,78 @@ async function GetVideo(url, thumb, html) {
         var $ = cheerio.load(html);
         var title = $('body').find('h1').text();
         console.log('E视频标题为' + title);
-        var description = $('.field-items').find('p').html();
+        var description = $('div.content').find('div.field.field-name-body.field-type-text-with-summary.field-label-hidden').html();
         console.log('E视频简介为' + description);
         var DownloadAddr = url.replace('videos', 'api/video')
         console.log('E视频即时下载地址为' + DownloadAddr);
         var author = $('.node-info').find('a.username').text();
+        var author_url = $('.node-info').find('a.username').attr('href');
+        var author_picture = $('.user-picture').find('img').attr('src');
+        var userData = $('.submitted').html();
+        try{
+        var postDate = userData.match(/\d{4}(\-|\/|.)\d{1,2}\1\d{1,2}\s?\d{2}\:\d{2}/)[0]
+        }catch(err){
+            if(err){
+                postDate = "NULL";
+            }
+        }
         console.log('E视频作者' + author)
+        console.log('E视频作者地址' + author_url)
+        console.log('E视频作者头像' + author_picture)
         console.log("E缩略图" + thumb)
+        console.log("E视频发布时间" + postDate)
         console.log('E原视频地址' + url)
+        let d = new Date();
+        let timeStr = d.getFullYear() +  "-" + Number(d.getMonth() + 1) + '-' + d.getDate();
         if (!description) description = 'NULL';
         description.replace(/\s/g, '');
-        
-        var json = '{"title":"' + title + '","author":"' + author + '","description":"' + description.replace(/&|<|>|'|"|\n|\s|\s/g, function (matchStr) {
-            var tokenMap = {
-                '\s': '',
-                '\s': '',
-                '\n': '',
-                ':': '\\:',
-                '&': '&',
-                '<': '<',
-                '>': '>',
-                "'": '&apos;',
-                '"': '\''
-            };
-            return tokenMap[matchStr];
-        }) + '","thumb":"' + thumb + '","download":"' + DownloadAddr + '","origin":"' + url + '"}'
+        var json = {
+            title: title,
+            author: {
+                name: author,
+                url: author_url,
+                picture: author_picture
+            },
+            description: description,
+            thumb: thumb,
+            download: DownloadAddr,
+            origin: url,
+            postDate: postDate,
+            catchDate: timeStr,
+            catchDateInt: d
+        }
         //配对视频代号
-        var start_line = url.indexOf('/videos/');
-        var id = "";
-        for (i = 0; i < url.length; i++) {
-            if (i >= start_line + 8) {
-                id = id + url[i];
-            }
-        }
-        if (id.indexOf('?language=ja') != -1) {
-            id.replace(/\?language=ja/g, '')
-        }
+        var id = url.substring(url.indexOf('/videos/') + 8 , url.indexOf('/videos/') + 25);
         console.log("E视频id为" + id);
-        if (url.indexOf('?language=ja') != -1) {
-            url.replace(/\?language=ja/g, '')
-        }
-
-
-        if(1){
         console.log('开始存储数据')
-        fs.writeFileSync('./data/ecchi/' + id + '.json', json, function (err) {
+        fs.writeFileSync('./data/ecchi/' + id + '.json', JSON.stringify(json), function (err) {
             if (err) console.err(err)
-        })
+        })//存储视频数据
+        var authorID = author_url.substring(author_url.indexOf('/users/')+7,author_url.length)
+        if(authorID.indexOf('?language') != -1){
+            authorID = authorID.substring(0,authorID.indexOf('?language'))
         }
-        /*
-        https.get(url, function (res) {  
-            var datas = [];
-            var size = 0;  
-            res.on('data', function (data2) {  
-                datas.push(data2);  
-                size += data2.length;  
-                
-            });  
-            res.on("end", function () {  
-                var buff = Buffer.concat(datas, size);  
-                var result = iconv.decode(buff, "utf8");//转码//var result = buff.toString();//不需要转编码,直接tostring  
-                //console.log(result);  
-            
-            //console.log(response.data);
-            data = result;
-            //console.log("the result is" + data);
-            var $ = cheerio.load(data);
-            var title = $('body').find('h1').text();
-            console.log('E视频标题为'+title);
-            var description = $('.field-items').find('p').html();
-            console.log('E视频简介为'+description);
-            var DownloadAddr = url.replace('videos','api/video')
-            console.log('E视频即时下载地址为'+DownloadAddr);
-            var author = $('.node-info').find('a.username').text();
-            console.log('E视频作者'+author)
-            console.log("www缩略图"+thumb)
-            console.log('E原视频地址'+url)
-            description.replace(/\s/g,'');
-            var json = '{"title":"'+title+'","author":"'+author+'","description":"'+ description.replace(/&|<|>|'|"|\n|\s|\s/g, function(matchStr) {
-                var tokenMap = {
-                '\s':'',
-                '\s':'',
-                '\n':'',
-                ':': '\\:',
-                '&': '&',
-                '<': '<',
-                '>': '>',
-                "'": '&apos;',
-                '"': '\''
-            };
-                return tokenMap[matchStr];
-            })+'","thumb":"'+thumb+'","download":"'+DownloadAddr+'","origin":"'+url+'"}'
-            //配对视频代号
-            var start_line = url.indexOf('/videos/');
-            var id = "";
-            for(i=0;i<url.length;i++){
-                if(i>=start_line+8){
-                    id = id + url[i];
-                }
+        console.log(authorID)
+        fs.exists('./data/author/ecchi/index/' + authorID +'.json',function ifexist(exist){
+            if(!exist){
+                fs.writeFileSync('./data/author/ecchi/index/' + authorID +'.json',JSON.stringify({
+                    userLink: author_url
+                }),function callback(err){
+                    if(err)console.log(err)
+                })//如果路径存在则失败，将用户ID纳入用户名索引/index/中，|| 数据格式为: /users/:authorID 
             }
-            
-            console.log("E视频id为"+id);
-            fs.writeFileSync('./data/www/'+id+'.json',json,function(err){
-                if(err)console.err(err)
-            })
-            //process.stdout.write(data);  
-            
-*/
-
+        })
+        
+        fs.exists('./data/author/ecchi/list/' + author +'.json',function ifexist(exist){
+            if(!exist){
+                fs.writeFileSync('./data/author/ecchi/list/' + author +'.json',JSON.stringify({
+                    userLink: author_url
+                }),function callback(err){
+                    if(err)console.log(err)
+                } )//如果路径存在则失败，将用户目前昵称纳入昵称索引/list/中 || 数据格式为: /users/:authorID 
+            }
+        })
     }
 }
-/*
-Example
-GetVideo('https://www.iwara.tv/videos/ekea7ilk4dtmzq2bk',"undefined")
-*/
 
 module.exports = GetVideo

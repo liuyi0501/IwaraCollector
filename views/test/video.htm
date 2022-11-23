@@ -1,0 +1,312 @@
+<% try{ %>
+<!DOCTYPE html>
+<html lang="zh">
+    <meta charset="utf-8">
+    <meta name="referrer" content="never">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script><!-- JQuery -->
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script>
+        var url = '<%= download %>';
+        console.log(url)
+        //alert('1');
+    </script>
+    <%if( debug ){%>
+    <script>
+        alert('debugging');
+        console.warn('debugging');
+    </script>
+    <%}%>
+    <%if( envVersion == 2 ){%>
+    <script>
+    alert('2')
+            function ChangeQuality(num, total){
+			    for ( i = 0 ; i<total;i++ ){
+			        if ( i == num ){
+			            $('#Player').attr('src','https:\/\/player.2481asd.com/?url='+window.location + '/redirect.mp4?resolution=' + window.quality[i].resolution);
+			        }
+			    }
+            }
+        console.log('envVersion:',2);
+        let url2 = '/api/video/<%= siteType %>/<%= V_id %>';
+        alert('开始获取视频数据');
+        $.getJSON(url2, function(data) {
+                console.log(data);
+                alert('获取视频数据成功');
+                if(data.code!=200)alert(data.message);
+				$('.mainImg').attr('src','https://redirect.wobbay.xyz/https:'+data.data.thumb);
+				
+				window.video_picture = data.data.thumb;
+				
+				$('.authorName').text(decodeURI(data.data.author));
+				$('title').text(data.data.title);
+				
+				window.video_name = data.data.title;
+				
+				$('h1').text(data.data.title);
+				$('div#description').html(data.data.desc);
+				$('.hidden').css('display','block');
+				if (data.data.tag){
+				    for (i = 0; i < data.data.tag.length ; i++ ){
+				        $('#tag').append('<button class="mdui-btn mdui-color-cyan-accent mdui-ripple"><a href="/tag/<%= siteType %>/'+data.data.tag[i]+'">'+data.data.tag[i]+'</a></button> ')
+				    }
+				}
+				
+				
+				var userApi = "/api/user/<%= siteType %>/"+data.data.author;
+				$('a#author_link').attr('href','/users/<%= siteType %>/'+data.data.author);
+				$.getJSON(userApi, function(data4){
+				    console.log(data4);
+				    $('img.author_logo').attr('src','https://redirect.wobbay.xyz/https:'+data4.data.picture);
+				    $('p.authorName').text(data4.data.nickname);
+				    
+				})
+				if ( !data.data.other.youtube ){
+				    let url3 = '/<%= siteType %>/api?url=https://<%=siteType%>.iwara.tv/api/video/'+data.data.id;
+				    $.getJSON(url3, function(data2){
+				        console.log(data2);
+				        window.quality = data2;
+				        if ( data2.length == 0 ){
+				            alert('获取视频播放源地址失败');
+				        } else if (data2.length !=0 ){
+				            var beforeFrame = '
+				            <iframe scrolling="no" id="Player" allowfullscreen="true" class="video mdui-video-fluid" src="https:\/\/player.2481asd.com/?url=https:\/\/redirect.wobbay.xyz/';
+                            var afterFrame = '" preload="auto" width="960" height="540" poster="<%= picture %>" style="width:640px;height:360px" controls>您的浏览器不支持<% "<iframe>" %>标签</iframe>';
+                            for(i = 0; i < data2.length; i++){
+                            /*载入下载*/
+                            $("#download").append('<a href="https:\/\/redirect.wobbay.xyz/https:'+data2[i].uri+'">'+data2[i].resolution+'</a><br/>');
+                            /*载入在线播放*/
+                                console.log(encodeURI(data2[i].uri));
+                                if ( i == 0 ){
+                                    $('div.videos').append('<div class="video video-0">'+data2[i].resolution+'<br/>'+beforeFrame + window.location + '/redirect.mp4%3Fresolution=' + data2[0].resolution+'&pic=https://redirect.wobbay.xyz/https:'+ window.video_picture + '&name='+ encodeURIComponent(window.video_name)+afterFrame+'</div>');
+                                    $('div.quality').append('<h3>Change Quality / 更换画质</h3>');
+                                }
+                                
+                                $('div.quality').append('<button onclick="ChangeQuality('+i+', '+data2.length+');" class="mdui-btn mdui-color-cyan-accent mdui-ripple">'+data2[i].resolution+'</button>');
+                                
+                            }
+				        } else {
+                            var beforeFrame = '<iframe scrolling="no" id="Player" allowfullscreen="true" class="video mdui-video-fluid" src="https:\/\/player.2481asd.com/?url=https:\/\/redirect.wobbay.xyz/https:';
+                            var afterFrame = '" preload="auto" width="960" height="540" poster="<%= picture %>" style="width:640px;height:360px" controls>您的浏览器不支持<% "<iframe>" %>标签</iframe>';
+                            for(i = 0; i < data2.length; i++){
+                            /*载入下载*/
+                            $("#download").append('<a href="https:\/\/redirect.wobbay.xyz/https:'+data2[i].uri+'">'+data2[0].resolution+'</a><br/>');
+                            /*载入在线播放*/
+                                console.log(encodeURI(data2[i].uri));
+                                if ( i == 0 ){
+                                    $('div.videos').append('<div class="video video-0">'+data2[i].resolution+'<br/>'+beforeFrame+ window.location + '/redirect.mp4?resolution=' + data2[0].resolution +afterFrame+'</div>');
+                                    $('div.quality').append('<h3>Change Quality / 更换画质</h3>');
+                                } else {
+                                    $('div.videos').append('<div class="video video-'+i+'" style="display:none;">'+data2[i].resolution+'<br/>'+beforeFrame+encodeURIComponent(data2[i].uri)+afterFrame+'</div>');
+                                }
+                                
+                                $('div.quality').append('<button onclick="ChangeQuality('+i+', '+data2.length+');" class="mdui-btn mdui-color-cyan-accent mdui-ripple">'+data2[i].resolution+'</button>');
+                                
+                            }
+                        }
+				    })
+				} else {
+				    $('.youtube_video_place').html(data.data.other.youtube);
+				}
+			});
+			var quality = 0;
+			
+    </script>
+    <%}%>
+    <head>
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+        <title><%= V_title %> - <%=siteType%></title>
+        <style>
+img {
+    object-fit: contain;
+  }
+.hidden{
+    display: none;
+}
+        </style>
+    </head>
+    <body class="mdui-theme-layout-dark">
+        <!-- Header -->
+        <header><%- header %></header>
+        <!-- /Header -->
+        <!-- Main -->
+        <div class="main mdui-container mdui-center below-the-fold">
+            <h1 class="text mdui-text-color-theme-text"><%= V_title %></h1>
+            <%try{%>
+        
+            <% var picture = thumb.replace("/styles/thumbnail/public/","/")%>
+            <img class="image mdui-img-fluid mdui-hoverable mdui-img-rounded mainImg" src  width="1920" height="1080" layout="responsive"  alt="<%= V_title %>" loading="lazy"></img>
+            <%}catch{%>
+            <%console.log}%>
+            <br/>
+            <h2 class="light-text mdui-text-color-theme-text">Author:
+                <br/>
+                <a id="author_link" href="/users/<%= siteType %><%= encodeURI(author_url.replace('/users','')) %>">
+                    <img class="author_logo" width="100" height="100" src="https://redirect.wobbay.xyz/https:<%= author_picture %>" alt="<%= author %>'s picture" loading="lazy"/>
+                    <p class="authorName"></p>
+                </a>
+            </h2>
+            <br/>
+            <div class="hidden">
+                <h2>TAG</h2>
+                <div class="tag" id="tag">
+                </div>
+                <h2>Download</h2>
+                <div class="download" id="download">
+                </div>
+                <h2>Watching Online</h2>
+                <div class="quality"></div>
+                <div class="videos">
+                    <div class="youtube_video_place">
+                    </div>
+                </div>
+                <h2>Description</h2>
+                <div class="description" id="description">
+                </div>
+            </div>
+
+
+
+<!-- 以下是v1版本的模板，懒得删了 -->
+
+           <% if(video.length > 0){ %>
+            
+<div class="mdui-panel mdui-panel-popout" mdui-panel>
+            <h3>切勿轻信视频上的任何广告！！！</h3><br/>
+            <Strong><i class="mdui-icon material-icons">&#xe85a;</i>服务器反向代理翻墙看<small>Beta</small></strong>流量都是钱，省着点用<br/>
+            <% video[0].uri = video[0].uri.replace(/\&/g,'%26') %>
+            <iframe scrolling="no" id="Player" allowfullscreen="true" class="video mdui-video-fluid" src="https://player.2481asd.com/?url=https://redirect.wobbay.xyz/https:<%= video[0].uri %>" preload="auto" width="960" height="540" poster="<%= picture %>" style="width:640px;height:360px" controls>您的浏览器不支持<% "<iframe>" %>标签
+            </iframe>
+            <% for(var i = 0;i < video.length ; i++){ %>
+            
+  <div class="mdui-panel-item <%= i!=-1?"mdui-panel-item-open":"" %>">
+    <div class="mdui-panel-item-header"><%= video[i].resolution %></div>
+    <%- i==-1?"":'<div class="mdui-panel-item-summary">点击展开</div>' %>
+        <div class="mdui-panel-item-body">
+            <% video[i].uri = video[i].uri.replace(/\&/g,'%26') %>
+            <iframe scrolling="no" id="Player" allowfullscreen="true" class="video mdui-video-fluid" src="https://player.2481asd.com/?url=https:<%= video[i].uri %>" preload="auto" width="960" height="540" poster="<%= picture %>" style="width:640px;height:360px" controls>您的浏览器不支持<% "<iframe>" %>标签
+            </iframe>
+            <br/>
+    </div>
+  </div>
+            <% } %>
+            <br/>
+</div>
+            <% }else{ %>
+                <strong>无预览视频,或许此视频已失效、或此视频为YouTuBe外链视频</strong>
+            <% } %>
+            <div class="mdui-panel" mdui-panel>
+
+  <div class="mdui-panel-item">
+    <div class="mdui-panel-item-header">外链视频框架</div>
+    <div class="mdui-panel-item-body">
+        <%= '<img class="mdui-img-fluid mdui-hoverable mdui-img-rounded" src="https:'+picture+'" height="18%" width="100%" alt="'+V_title+'" loading="lazy" loading="lazy"/>' %>
+            <%= '<br/>' %>
+        <%= '<iframe src="https://iwara.wobbay.xyz/'+ siteType +'/frame-video/' + V_id + '" width="100%" height="720" >您的浏览器不支持iframe框架</iframe>' %>
+    </div>
+  </div>
+</div> 
+
+
+
+            <br/><strong>发布日期: <%= time %></strong><br/>
+            <strong>爬取日期：<%= catchDate %> -- <%= catchDateInt %>（UTC/GMT 0）</strong><br/>
+            <strong>Download(无需翻墙)<br/>
+            <p>代理自动跳转外链：<a href="/<%= siteType %>/video/<%= V_id.indexOf('?')==-1?V_id:V_id.replace('?','%3F') %>/redirect.mp4">https://iwara.wobbay.xyz/<%= siteType %>/video/<%= V_id.indexOf('?')==-1?V_id:V_id.replace('?','%3F') %>/redirect.mp4</a>
+                <br/>原始自动跳转外链：<a href="/<%= siteType %>/video/<%= V_id.indexOf('?')==-1?V_id:V_id.replace('?','%3F') %>/redirect.mp4?origin=1">https://iwara.wobbay.xyz/<%= siteType %>/video/<%= V_id.indexOf('?')==-1?V_id:V_id.replace('?','%3F') %>/redirect.mp4?origin=1</a>
+                <br/>如实用有问题或合作相关请联系我：service@wobbay.xyz<br/><a href="/about">使用相关</a></p>
+            <br/>
+            <strong>下载</strong>
+            <% for(var i = 0;i <video.length;i++){ %>
+                <a href="https:<%= video[i].uri %>" target="_blank"><i class="mdui-icon material-icons">&#xe2c4;</i><%=video[i].resolution %></a>
+                <br/>
+            <% } %>
+            <br/>
+            </strong>
+            <strong>API:</strong>
+            <a href="<%= download %>" id = "download"><%= download %></a>
+            <br/>
+            <br/>
+            <strong>API data:<%= JSON.stringify(video) %></strong>
+            <br/>
+            <br/>
+            <strong>Description:</strong>
+            <p width="1280" class="page"><%- description %></p>
+            <br/>
+            <strong>Others:</strong><br/>
+            <% try{ %>
+            <li><strong>Thumbnail Number: <%= thumb.match(/-?[1-9]\d*/) %></strong></li>
+            <li><strong>Another Thumbnails:</strong></li>
+            <% var Tnum = thumb.match(/-?[1-9]\d*/g)[0] %>
+            <% var Num = thumb.match(/-?[1-9]\d*/g)[2]; %>
+            <% array = ["0001","0002","0003","0004","0005","0006","0007","0008","0009","0010","0011","0012","0013","0014","0015"] %>
+            <div class=" image mdui-row-xs-3 mdui-grid-list">
+            <%try{%>
+            <% for(var i = 0001 ; i <= 15;i++){ %>
+                <h5><%= i %></h5>
+                <% let image = 'https://i.iwara.tv/sites/default/files/videos/thumbnails/'+Tnum+'/thumbnail-'+Tnum+'_'+array[i-1]+'.jpg' %>
+                <img class="image mdui-img-fluid mdui-hoverable" src="https://redirect.wobbay.xyz/<%= image %>" width="1920" height="1080" layout="responsive" alt="<%= V_title+"-NO."+i %>" loading="lazy"></img>
+                <br/>
+                <% } %>
+            <%}catch{%>
+            <%console.log}%>
+            </div>
+            <% }catch(err){%>
+                <% if(err){%>
+                    <% console.error(err) %>
+                <% } %>
+            <% }%>
+            <br/>
+            <h3>Origin:</h3>
+            <a href="<%= origin %>"><%= origin %></a>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+        <!-- /main -->
+        <!-- Footer -->
+        <footer><%- footer %></footer>
+        <!-- /Footer -->
+        
+        
+    </body>
+    <style>
+    .light-text{
+        font-weight: 300;
+        font-style: italic;
+    }
+    .text{
+        font-weight:500;
+    }
+    .page{
+    width: 100%;
+    word-wrap:break-word;
+    border-bottom: 0;
+    font-size: 1.1em;
+    line-height: 0.9em;
+    letter-spacing: 0px;
+    margin-top: 7.5px;
+    word-wrap: break-word;
+    }
+    .title {
+    width: 100%;
+    word-wrap:break-word;
+    border-bottom: 0;
+    font-size: 1.1em;
+    line-height: 0.9em;
+    letter-spacing: 0px;
+    margin-top: 7.5px;
+    word-wrap: break-word;
+    }
+    .btns-hamburger{
+        display:none;
+    }
+    body{
+        word-wrap: break-word;
+    }
+    </style>
+</html>
+<%}catch(e){ %>
+    <script>
+        console.warn("<%- e %>");
+    </script>
+<%}%>

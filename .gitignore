@@ -1,0 +1,6 @@
+.well-known/
+.htaccess
+.user.ini
+node_modules/
+bin/
+log/

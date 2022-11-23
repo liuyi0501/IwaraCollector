@@ -1,73 +1,404 @@
-
-<html>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<% try{ %>
+<!DOCTYPE html>
+<html lang="zh">
+    <meta charset="utf-8">
+    <meta name="referrer" content="never">
+    <!-- JQuery -->
+    <script src="https://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <!--<script src="https://cdn.bootcss.com/vConsole/3.2.0/vconsole.min.js"></script>-->
+    <link
+rel=stylesheet id=swiper-css href=/stylesheets/swiper-bundle.min.css type=text/css media=all>
+<link rel="preload" as="script" href="/js/swiper-bundle.min.js" />
+<meta name ="rating" content="adult">
+<script>
+//初始化一下就可以了，
+//let vConsole = new VConsole();
+</script>
+<style>.swiper-container { width:100%; overflow: hidden }</style>
     <script>
         var url = '<%= download %>';
         console.log(url)
+        //alert('1');
     </script>
-    <head>
-        <title><%= V_title %> - <%=siteType%></title>
-    </head>
-    <body width="1280">
-        <header><%- header %></header>
-        <h2><%= V_title %></h2>
-        <% var picture = thumb.replace("/styles/thumbnail/public/","/")%>
-        <img src="<%= picture %>" width="1280" height="720" alt="<%= V_title %>"/>
-        <br/>
-        <h2>Author:<%= author %></h2>
-        <br/>
-        <h3>切勿轻信视频及播放器上的任何广告！！！</h3>
-        <% for(var i = 0;i < video.length ; i++){ %>
-        <strong><%= video[i].resolution %></strong><br/>
-        <iframe width="1280" height="720" frameborder="0" scrolling="no" allowfullscreen="true" data-lock="0" data-pass="1" data-auto="1" data-seek="0" data-code="1" data-trys="0" data-advs="0" data-link="" data-time="5" data-chat="0" data-word="VAt6ZW/5Z+O" data-stat="1" data-pars="https://www.33tn.cn/?url=" data-play="YSuaHR0cHM6Ly92b2Q4LndlbnNoaWJhb3dlbmJlaS5jb20vMjAyMjAxMTYvaTB1UkYxeEovaW5kZXgubTN1OA==" data-next="" src="https://www.33tn.cn/?url=<%= video[i].uri %>"></iframe>
-        <br/>
-        <% } %>
-        
+    <%if( debug ){%>
+    <script>
+        alert('debugging');
+        console.warn('debugging');
+    </script>
+    <%}%>
+    <%if( envVersion == 2 ){%>
+    <script async=async>
+    window.video_id = '<%= V_id %>';
+    window.siteType = '<%= siteType %>';
+    
+    function purge(){
+        let baseUrl = '/api/purge/video/'+window.siteType+'/'+window.video_id;
+        $.getJSON(baseUrl, function(res){
+            alert(res.message);
+        })
+    
+    }
+    
+    var os = function () {
+			var ua = navigator.userAgent,
+				isWindowsPhone = /(?:Windows Phone)/.test(ua),
+				isSymbian = /(?:SymbianOS)/.test(ua) || isWindowsPhone,
+				isAndroid = /(?:Android)/.test(ua),
+				isFireFox = /(?:Firefox)/.test(ua),
+				isChrome = /(?:Chrome|CriOS)/.test(ua),
+				isTablet = /(?:iPad|PlayBook)/.test(ua) || (isAndroid && !/(?:Mobile)/.test(ua)) || (isFireFox &&
+					/(?:Tablet)/.test(ua)),
+				isPhone = /(?:iPhone)/.test(ua) && !isTablet,
+				isPc = !isPhone && !isAndroid && !isSymbian;
+			return {
+				isTablet: isTablet,
+				isPhone: isPhone,
+				isAndroid: isAndroid,
+				isPc: isPc
+			};
+		}();
+		console.log('os', os)
+    if(!(os.isAndroid || os.isPhone)){
+        $('head').append('<script src="/js/swiper-bundle.min.js"><\/script>');
+    }
+    //alert('2')
+            function ChangeQuality(num, total){
+			    for ( i = 0 ; i<total;i++ ){
+			        if ( i == num ){
+			            $('#tip-quality').css('display','none');
+			            $('#Player').attr('src','https://api.qianyicp.com/api/bilibili/player/?url='+window.location + '/redirect.mp4?resolution=' + window.quality[i].resolution+'&pic='+window.video_picture+'&name='+window.video_name);
+			            let width = $('div.video').width();
+			            $('#Player').css('width',width);
+			            $('#Player').css('height',width*0.5625);
+			            $('#Player').css('display','block');
+			        }
+			    }
+            }
+        console.log('envVersion:',2);
+        let url2 = '/api/video/<%= siteType %>/<%= V_id %>';
 
+        //alert('开始获取视频数据');
+        $.getJSON(url2, function(data) {
+                console.log(data);
+                //alert('获取视频数据成功');
+                if(data.code!=200)alert(data.message);
+                $('head').append('<link rel="preload" as="image" href="https:'+data.data.thumb+'" />');
+				$('.mainImg').attr('src','https://redirect.wobbay.xyz/https:'+data.data.thumb);
+				
+				
+				//var swiper = new Swiper('.swiper-container');
+				var base_thumb_id = data.data.thumb_id;
+				var base_thumb_url = '//i.iwara.tv/sites/default/files/videos/thumbnails/'+base_thumb_id+'/thumbnail-'+base_thumb_id+'_';
+				
+				//var base_thumb_id = data.data.thumb_id;
+				var re = /_[0-9]{4}/g;
+				var thumb_page = data.data.thumb.match(re);
+				thumb_page_now = thumb_page;
+				
+				if(thumb_page_now){
+				    thumb_page_now = Number(thumb_page_now[0].replace('_',''));
+				}
+if(navigator.connection && navigator.connection.effectiveType) {
+  if (!(os.isAndroid || os.isPhone)) {
+    // 加载视频
+				for ( i = 0 ; i < 14 ; i++ ){
+				    console.log(thumb_page_now);
+				    if(thumb_page_now >=15){
+				        thumb_page_now = 1;
+				    } else {
+				        thumb_page_now++;
+				    }
+				    if( thumb_page_now <10){
+				        $('.swiper-wrapper').append('<div class=swiper-slide><img class="image mdui-img-fluid mdui-hoverable mdui-img-rounded mainImg" width=1920 height=1080  src=https://redirect.wobbay.xyz/https:'+base_thumb_url + '000'+thumb_page_now+'.jpg loading=lazy alt='+thumb_page_now+'/></div>');
+				    } else {
+				        $('.swiper-wrapper').append('<div class=swiper-slide><img class="image mdui-img-fluid mdui-hoverable mdui-img-rounded mainImg" width=1920 height=1080  src=https://redirect.wobbay.xyz/https:'+base_thumb_url+'00'+thumb_page_now+'.jpg loading=lazy alt='+thumb_page_now+'/></div>');
+				    }
+				}
+			
+		
+				
+
+
+				var swiper = new Swiper('.swiper-container', {
+				
+//导航按钮
+navigation:{
+nextEl: '.swiper-button-next',
+prevEl: '.swiper-button-prev',
+},
+//自动轮播
+autoplay: {
+delay: 2500,//时间 毫秒
+disableOnInteraction: false,//用户操作之后是否停止自动轮播默认true 
+},
+observer:true,/*启动动态检查器，当改变swiper的样式（例如隐藏/显示）或者修改swiper的子元素时，自动初始化swiper。*/
+observeParents:true,/*将observe应用于Swiper的父元素。当Swiper的父元素变化时，例如window.resize，Swiper更新。*/
+
+loop:true,//循环 最后面一个往后面滑动会滑到第一个
+});
+				
+	} else {
+	    $('.swiper-button-prev').css('display','none');
+	    $('.swiper-button-next').css('display','none');
+	}
+}
+				window.video_picture = data.data.thumb;
+				
+				$('.authorName').text(decodeURIComponent(data.data.author));
+				$('title').text(data.data.title);
+				
+				window.video_name = data.data.title;
+				
+				$('h1').text(data.data.title);
+				$('div#description').html(data.data.desc);
+				$('.hidden').css('display','block');
+				if (data.data.tag){
+				    for (i = 0; i < data.data.tag.length ; i++ ){
+				        $('#tag').append('<button class="mdui-btn mdui-color-cyan-accent mdui-ripple"><a href="/tag/<%= siteType %>/'+data.data.tag[i]+'">'+decodeURIComponent(data.data.tag[i])+'</a></button> ')
+				    }
+				}
+				
+				
+				var userApi = "/api/user/<%= siteType %>/"+data.data.author;
+				$('a#author_link').attr('href','/users/<%= siteType %>/'+data.data.author);
+				$.getJSON(userApi, function(data4){
+				    console.log(data4);
+				    $('img.author_logo').attr('src','https://redirect.wobbay.xyz/https:'+data4.data.picture);
+				    $('p.authorName').text(decodeURIComponent(data4.data.nickname));
+				    
+				})
+				if ( !data.data.other.youtube ){
+				    let url3 = '/<%= siteType %>/api?url=https://<%=siteType%>.iwara.tv/api/video/'+data.data.id;
+				    $.getJSON(url3, function(data2){
+				        console.log(data2);
+				        window.quality = data2;
+				        if ( data2.length == 0 ){
+				            alert('获取视频播放源地址失败');
+				        } else if (data2.length !=0 ){
+				            var beforeFrame = '<iframe scrolling="no" id="Player" allowfullscreen="true" class="video mdui-video-fluid" src="';
+                            var afterFrame = '" preload="auto" width="960" height="540" poster="<%= picture %>" style="width:1280px;height:720px;display:none" controls>您的浏览器不支持<% "<iframe>" %>标签</iframe>';
+                            for(i = 0; i < data2.length; i++){
+                            /*载入下载*/
+                            $("#download").append('<a href="http:\/\/198.98.55.125:8080/https:'+data2[i].uri+'">'+data2[i].resolution+'</a><br/>');
+                            /*载入在线播放*/
+                                console.log(encodeURI(data2[i].uri));
+                                if ( i == 0 ){
+                                    $('div.videos').append('<div class="video ">'+data2[i].resolution+'<br/>'+beforeFrame +afterFrame+'<strong class="mdui-color-amber-accent" id="tip-quality">请点击上方选择画质以播放视频<br/>Please select the quality to show the video. </strong></div>');
+                                    $('div.quality').append('<h3>Change Quality / 更换画质</h3>');
+                                }
+                                
+                                $('div.quality').append('<button onclick="ChangeQuality('+i+', '+data2.length+');" class="mdui-btn mdui-color-cyan-accent mdui-ripple">'+data2[i].resolution+'</button>');
+                                
+                            }
+				        } else {
+                            var beforeFrame = '<iframe scrolling="no" id="Player" allowfullscreen="true" class="video mdui-video-fluid" src="https:\/\/player.2481asd.com/?url=https:\/\/redirect.wobbay.xyz/https:';
+                            var afterFrame = '" preload="auto" width="960" height="540" poster="<%= picture %>" style="width:640px;height:360px" controls>您的浏览器不支持<% "<iframe>" %>标签</iframe>';
+                            for(i = 0; i < data2.length; i++){
+                            /*载入下载*/
+                            $("#download").append('<a href="https:\/\/redirect.wobbay.xyz/https:'+data2[i].uri+'">'+data2[0].resolution+'</a><br/>');
+                            /*载入在线播放*/
+                                console.log(encodeURI(data2[i].uri));
+                                if ( i == 0 ){
+                                    $('div.videos').append('<div class="video video-0">'+data2[i].resolution+'<br/>'+beforeFrame+ window.location + '/redirect.mp4?resolution=' + data2[0].resolution +afterFrame+'</div>');
+                                    $('div.quality').append('<h3>Change Quality / 更换画质</h3>');
+                                } else {
+                                    $('div.videos').append('<div class="video video-'+i+'" style="display:none;">'+data2[i].resolution+'<br/>'+beforeFrame+encodeURIComponent(data2[i].uri)+afterFrame+'</div>');
+                                }
+                                
+                                $('div.quality').append('<button onclick="ChangeQuality('+i+', '+data2.length+');" class="mdui-btn mdui-color-cyan-accent mdui-ripple">'+data2[i].resolution+'</button>');
+                                
+                            }
+                        }
+				    })
+				} else {
+				    $('.youtube_video_place').html(data.data.other.youtube);
+				}
+			});
+			var quality = 0;
+			
+    </script>
+    <%}%>
+    <head>
+    <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+        <title><%= V_title %> - <%=siteType%></title>
+        <style>
+img {
+    object-fit: contain;
+  }
+.hidden{
+    display: none;
+}
+        </style>
+    </head>
+    <body>
+        <!-- Header -->
+        <header><%- header %></header>
+        <!-- /Header -->
+        <!-- Main -->
+        <div class="main mdui-container mdui-center below-the-fold">
+            <h1 class="text mdui-text-color-theme-text"><%= V_title %></h1>
+            <%try{%>
         
-        <h3>切勿轻信视频及播放器上的任何广告！！！</h3>
-        <br/>
-        <strong>API:</strong>
-        <a href="<%= download %>" id = "download"><%= download %></a>
-        <br/>
-        <br/>
-        <strong>API data:<%= JSON.stringify(video) %></strong>
-        <br/>
-        <br/>
-        <strong>Description:</strong>
-        <p width="1280" class="page"><%- description %></p>
-        <br/>
-        <strong>Others:</strong><br/>
-        <% try{ %>
-        <li><strong>Thumbnail Number: <%= thumb.match(/-?[1-9]\d*/) %></strong></li>
-        <li><strong>Another Thumbnails:</strong></li>
-        <% var Tnum = thumb.match(/-?[1-9]\d*/)%>
-        <% var Num = thumb.match(/-?[1-9]\d*/g)[2]; %>
-        <% array = ["0001","0002","0003","0004","0005","0006","0007","0008","0009","0010","0011","0012","0013","0014","0015"] %>
-        <% for(var i = 0001 ; i <= 15;i++){ %>
-            <h5><%= i %></h5>
-            <img src="https://i.iwara.tv/sites/default/files/videos/thumbnails/<%= Tnum %>/thumbnail-<%= Tnum %>_<%= array[i-1] %>.jpg" heigh="450" width="660" alt="<%= V_title+"-NO."+i %>">
+            <% var picture = thumb.replace("/styles/thumbnail/public/","/")%>
+            <div class='swiper-container'>
+            <div class="swiper-wrapper">
+<div class="swiper-slide">
+            <img class="image mdui-img-fluid mdui-hoverable mdui-img-rounded mainImg" src  width="1920" height="1080" layout="responsive"  alt="<%= V_title %>"></img>
+            </div>
+            </div>
+            <!-- 分页 -->
+<div class="swiper-pagination"></div>
+            <div class="swiper-button-next"></div>
+<div class="swiper-button-prev"></div>
+
+            </div>
+            <%}catch{%>
+            <%console.log}%>
             <br/>
+            <h2 class="light-text mdui-text-color-theme-text">Author:
+                <br/>
+                <a id="author_link" href="/users/<%= siteType %><%= encodeURI(author_url.replace('/users','')) %>">
+                    <img class="author_logo" width="100" height="100" src="https://redirect.wobbay.xyz/https:<%= author_picture %>" alt="<%= author %>'s picture" loading="lazy"/>
+                    <p class="authorName"></p>
+                </a>
+            </h2>
+            <br/>
+<div class="purge">
+    <button onclick="purge();" class="mdui-btn mdui-color-cyan-accent mdui-ripple">重新爬取视频数据/Purge Video Data</button>
+</div>
+            <div class="hidden">
+                <h2>TAG</h2>
+                <div class="tag" id="tag">
+                </div>
+                <h2>Download</h2>
+                <div class="download" id="download">
+                </div>
+                <h2>Watching Online</h2>
+                <div class="quality"></div>
+                <div class="videos">
+                    <div class="youtube_video_place">
+                    </div>
+                </div>
+                <h2>Description</h2>
+                <div class="description" id="description">
+                </div>
+            </div>
+
+
+
+<!-- 以下是v1版本的模板，懒得删了 -->
+<% /*/////////////////////////////////////////////////*/ %>
+           <% if(video.length > 0){ %>
+            
+<div class="mdui-panel mdui-panel-popout" mdui-panel>
+            <h3>切勿轻信视频上的任何广告！！！</h3><br/>
+            <Strong><i class="mdui-icon material-icons">&#xe85a;</i>服务器反向代理翻墙看<small>Beta</small></strong>流量都是钱，省着点用<br/>
+            <% video[0].uri = video[0].uri.replace(/\&/g,'%26') %>
+            <iframe scrolling="no" id="Player" allowfullscreen="true" class="video mdui-video-fluid" src="https://player.2481asd.com/?url=https://redirect.wobbay.xyz/https:<%= video[0].uri %>" preload="auto" width="960" height="540" poster="<%= picture %>" style="width:640px;height:360px" controls>您的浏览器不支持<% "<iframe>" %>标签
+            </iframe>
+            <% for(var i = 0;i < video.length ; i++){ %>
+            
+  <div class="mdui-panel-item <%= i!=-1?"mdui-panel-item-open":"" %>">
+    <div class="mdui-panel-item-header"><%= video[i].resolution %></div>
+    <%- i==-1?"":'<div class="mdui-panel-item-summary">点击展开</div>' %>
+        <div class="mdui-panel-item-body">
+            <% video[i].uri = video[i].uri.replace(/\&/g,'%26') %>
+            <iframe scrolling="no" id="Player" allowfullscreen="true" class="video mdui-video-fluid" src="https://player.2481asd.com/?url=https:<%= video[i].uri %>" preload="auto" width="960" height="540" poster="<%= picture %>" style="width:640px;height:360px" controls>您的浏览器不支持<% "<iframe>" %>标签
+            </iframe>
+            <br/>
+    </div>
+  </div>
             <% } %>
-        <% }catch(err){%>
-            <% if(err){%>
-                <% console.error(err) %>
+            <br/>
+</div>
+            <% }else{ %>
+                <strong>无预览视频,或许此视频已失效、或此视频为YouTuBe外链视频</strong>
             <% } %>
-        <% }%>
-        <br/>
-        <h3>Origin:</h3>
-        <a href="<%= origin %>"><%= origin %></a>
-        <br/>
-        <br/>
-        <br/>
+            <div class="mdui-panel" mdui-panel>
+
+  <div class="mdui-panel-item">
+    <div class="mdui-panel-item-header">外链视频框架</div>
+    <div class="mdui-panel-item-body">
+        <%= '<img class="mdui-img-fluid mdui-hoverable mdui-img-rounded" src="https:'+picture+'" height="18%" width="100%" alt="'+V_title+'" loading="lazy" loading="lazy"/>' %>
+            <%= '<br/>' %>
+        <%= '<iframe src="https://iwara.wobbay.xyz/'+ siteType +'/frame-video/' + V_id + '" width="100%" height="720" >您的浏览器不支持iframe框架</iframe>' %>
+    </div>
+  </div>
+</div> 
+
+
+
+            <br/><strong>发布日期: <%= time %></strong><br/>
+            <strong>爬取日期：<%= catchDate %> -- <%= catchDateInt %>（UTC/GMT 0）</strong><br/>
+            <strong>Download(无需翻墙)<br/>
+            <p>代理自动跳转外链：<a href="/<%= siteType %>/video/<%= V_id.indexOf('?')==-1?V_id:V_id.replace('?','%3F') %>/redirect.mp4">https://iwara.wobbay.xyz/<%= siteType %>/video/<%= V_id.indexOf('?')==-1?V_id:V_id.replace('?','%3F') %>/redirect.mp4</a>
+                <br/>原始自动跳转外链：<a href="/<%= siteType %>/video/<%= V_id.indexOf('?')==-1?V_id:V_id.replace('?','%3F') %>/redirect.mp4?origin=1">https://iwara.wobbay.xyz/<%= siteType %>/video/<%= V_id.indexOf('?')==-1?V_id:V_id.replace('?','%3F') %>/redirect.mp4?origin=1</a>
+                <br/>如实用有问题或合作相关请联系我：service@wobbay.xyz<br/><a href="/about">使用相关</a></p>
+            <br/>
+            <strong>下载</strong>
+            <% for(var i = 0;i <video.length;i++){ %>
+                <a href="https:<%= video[i].uri %>" target="_blank"><i class="mdui-icon material-icons">&#xe2c4;</i><%=video[i].resolution %></a>
+                <br/>
+            <% } %>
+            <br/>
+            </strong>
+            <strong>API:</strong>
+            <a href="<%= download %>" id = "download"><%= download %></a>
+            <br/>
+            <br/>
+            <strong>API data:<%= JSON.stringify(video) %></strong>
+            <br/>
+            <br/>
+            <strong>Description:</strong>
+            <p width="1280" class="page"><%- description %></p>
+            <br/>
+            <strong>Others:</strong><br/>
+            <% try{ %>
+            <li><strong>Thumbnail Number: <%= thumb.match(/-?[1-9]\d*/) %></strong></li>
+            <li><strong>Another Thumbnails:</strong></li>
+            <% var Tnum = thumb.match(/-?[1-9]\d*/g)[0] %>
+            <% var Num = thumb.match(/-?[1-9]\d*/g)[2]; %>
+            <% array = ["0001","0002","0003","0004","0005","0006","0007","0008","0009","0010","0011","0012","0013","0014","0015"] %>
+            <div class=" image mdui-row-xs-3 mdui-grid-list">
+            <%try{%>
+            <% for(var i = 0001 ; i <= 15;i++){ %>
+                <h5><%= i %></h5>
+                <% let image = 'https://i.iwara.tv/sites/default/files/videos/thumbnails/'+Tnum+'/thumbnail-'+Tnum+'_'+array[i-1]+'.jpg' %>
+                <img class="image mdui-img-fluid mdui-hoverable" src="https://redirect.wobbay.xyz/<%= image %>" width="1920" height="1080" layout="responsive" alt="<%= V_title+"-NO."+i %>" loading="lazy"></img>
+                <br/>
+                <% } %>
+            <%}catch{%>
+            <%console.log}%>
+            </div>
+            <% }catch(err){%>
+                <% if(err){%>
+                    <% console.error(err) %>
+                <% } %>
+            <% }%>
+            <br/>
+            <h3>Origin:</h3>
+            <a href="<%= origin %>"><%= origin %></a>
+            <br/>
+            <br/>
+            <br/>
+        </div>
+        <!-- /main -->
+        <!-- Footer -->
         <footer><%- footer %></footer>
-        
+        <!-- /Footer -->
         
         
     </body>
     <style>
+    .light-text{
+        font-weight: 300;
+        font-style: italic;
+    }
+    .text{
+        font-weight:500;
+    }
     .page{
-    width: 50%;
+    width: 100%;
     word-wrap:break-word;
     border-bottom: 0;
     font-size: 1.1em;
@@ -77,7 +408,7 @@
     word-wrap: break-word;
     }
     .title {
-    width: 50%;
+    width: 100%;
     word-wrap:break-word;
     border-bottom: 0;
     font-size: 1.1em;
@@ -94,3 +425,8 @@
     }
     </style>
 </html>
+<%}catch(e){ %>
+    <script>
+        console.warn("<%- e %>");
+    </script>
+<%}%>

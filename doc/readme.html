@@ -1,0 +1,63 @@
+<html>
+    <head>
+        <title>【教程】浅析Iwara网站及爬取技巧 - Wobbay</title>
+    </head>
+    <body>
+        <p><span style="color: #e03e2d;">实战原理前往第三个标题</span></p>
+        <h2>Iwara</h2>
+        <p>一个全球最大的MMD视频分享平台。</p>
+        <p>虽然站内优质MMD视频数不胜数，但碍于DNS污染，时常你是没法进入的|（connect_abroad）。</p>
+        <p>既然网站时常没法进入，那何不自己搭建一份数据备份站呢？&mdash;&mdash;<a href="https://github.com/liuyi0501/IwaraCollector" target="_blank" rel="nofollow noopener">IwaraCollector</a>应运而生</p>
+        <h2><a href="https://github.com/liuyi0501/IwaraCollector" target="_blank" rel="nofollow noopener">IwaraCollector</a></h2>
+        <p>IwaraCollector是我基于Iwara网站特性而编写的网站数据采集程序。</p>
+        <p>其中涵盖了：</p>
+        <ul>
+        <li>爬取视频列表</li>
+        <li>爬取单份视频数据（作者、预览图、简介、发布日期、下载地址）</li>
+        <li>数据的可视化</li>
+        <li>下载地址的获取与缓存</li>
+        </ul>
+        <p>虽然这些功能的实现经历了很多有趣的事情，但这不是文章的重点，故不赘述。</p>
+        <h2>原理剖析</h2>
+        <h3>基础数据的爬取</h3>
+        <p>Iwara网站网页是基于PHP编写的，其网页绝大多数数据由服务器渲染提供。</p>
+        <p>因此，<span style="color: #2dc26b;">视频标题、作者、作者链接、作者头像、视频封面、视频简介、视频上传日期</span> 均可采集到。</p>
+        <p>另外，有一个很有趣的现象，那就是iwara的视频预览图片不止一张，根据爬取的预览图url可见：</p>
+        <p>/sites/default/files/videos/thumbnails/446193/thumbnail-446193_0003.jpg?itok=15PqZcc9</p>
+        <p>thumbnail-446193_{{ Number }}.jpg</p>
+        <p>是存在多张预览图的。</p>
+        <p>而这个Number的值一般不少于5张，不多于15张。由四个数字组成，空位补0。</p>
+        <p>但是，只有一个非常重要的数据是ajax动态获取的&mdash;&mdash;视频下载链接。</p>
+        <h3>视频数据的动态获取</h3>
+        <p>Iwara使用了一个GET请求来获取下载地址：https://{{网站类型}}.iwara.tv/api/video/{{视频ID}}</p>
+        <p>访问这个地址，它会提供如下格式的JSON：</p>
+        <pre>[<br /> {<br />  "resolution":"Source",<br />  "uri":"","mime":"video\/mp4"<br /> },<br /> {<br />  "resolution":"540p",<br />  "uri":"","mime":"video\/mp4"<br /> },<br /> {<br />  "resolution":"360p",<br />  "uri":"","mime":"video\/mp4"<br /> }<br />]<br />其中，resolution代表分辨率，url代表对应的视频链接。</pre>
+        <p>url示例：<strong>//mikoto.iwara.tv/file.php?expire=1651217152%26hash=6dd27b94c9d6170dd31d36ae733a8bee52d1301e%26file=2018%2F11%2F28%2F1543407273_Nrm1bugrGgipoWrrD_Source.mp4%26op=dl%26r=0</strong></p>
+        <p><strong>//mikoto.iwara.tv/&nbsp; 是存储服务器域名</strong></p>
+        <p><strong>/file.php&nbsp; 附带以下参数：</strong></p>
+        <ul>
+        <li><strong>expire=1651217152 //下载时间戳</strong></li>
+        <li><strong>hash=6dd27b94c9d6170dd31d36ae733a8bee52d1301e //经过加密的hash值，是限制链接有效时间的值</strong></li>
+        <li><strong>file=2018%2F11%2F28%2F1543407273_Nrm1bugrGgipoWrrD_Source.mp4 //文件</strong></li>
+        <li><strong>op=dl //应该是打开方式 dl可能代表下载，没找到其他值</strong></li>
+        <li><strong>r=0 //1 会报403 不知道什么意义</strong></li>
+        </ul>
+        <p>因为技术不精，hash值加密原理没有找到。所以视频在国内播放采用了另一条路子&mdash;&mdash;CloudFlare代理</p>
+        <h3>CloudFlare代理借道翻墙</h3>
+        <p>我已经不记得从哪篇文章中提及，iwara的CDN使用的是cloudflare，</p>
+        <p>而使用cloudflare的CDN都有一个特点：你可以向任意cloudflare的服务器发送Host为挂载在cloudflare CDN上的域名的请求，并获取到和访问该域名时相同的数据。（这个方法同样适用于某些网站被墙了，但是可以用改hosts的IP为cloudflare的服务器来访问）</p>
+        <p>利用这个方法，你只需要在cloudflare中依次添加CNAME记录，将你的域名指向到对应的iwara资源服务器域名，</p>
+        <p>示例：</p>
+        <p>我将<a href="https://mikoto.wobbay.xyz/file.php?expire=1651217152%26hash=6dd27b94c9d6170dd31d36ae733a8bee52d1301e%26file=2018%2F11%2F28%2F1543407273_Nrm1bugrGgipoWrrD_Source.mp4%26op=dl%26r=0" target="_blank" rel="noopener">mikoto.wobbay.xyz</a>指向<a href="https://mikoto.iwara.tv/file.php?expire=1651217152%26hash=6dd27b94c9d6170dd31d36ae733a8bee52d1301e%26file=2018%2F11%2F28%2F1543407273_Nrm1bugrGgipoWrrD_Source.mp4%26op=dl%26r=0" target="_blank" rel="nofollow noopener"><strong>mikoto.iwara.tv</strong></a></p>
+        <p>此时，你访问</p>
+        <p><a href="https://mikoto.wobbay.xyz/file.php?expire=1651217152%26hash=6dd27b94c9d6170dd31d36ae733a8bee52d1301e%26file=2018%2F11%2F28%2F1543407273_Nrm1bugrGgipoWrrD_Source.mp4%26op=dl%26r=0" target="_blank" rel="noopener">https://mikoto.wobbay.xyz/file.php?expire=1651217152%26hash=6dd27b94c9d6170dd31d36ae733a8bee52d1301e%26file=2018%2F11%2F28%2F1543407273_Nrm1bugrGgipoWrrD_Source.mp4%26op=dl%26r=0</a></p>
+        <p>与</p>
+        <p><a href="https://mikoto.iwara.tv/file.php?expire=1651217152%26hash=6dd27b94c9d6170dd31d36ae733a8bee52d1301e%26file=2018%2F11%2F28%2F1543407273_Nrm1bugrGgipoWrrD_Source.mp4%26op=dl%26r=0" target="_blank" rel="nofollow noopener"><strong>https:</strong><strong>//mikoto.iwara.tv/file.php?expire=1651217152%26hash=6dd27b94c9d6170dd31d36ae733a8bee52d1301e%26file=2018%2F11%2F28%2F1543407273_Nrm1bugrGgipoWrrD_Source.mp4%26op=dl%26r=0</strong></a></p>
+        <p>是等效的。前者可以直接访问，后者有时有DNS污染，没法访问。</p>
+        <p>&nbsp;</p>
+        <p>这样，就实现了在线播放。</p>
+        <p>&nbsp;</p>
+        <h2>结语</h2>
+        <p>这就是大体的原理和实现方法。有其他疑问和建议可通过<a href="mailto:admin@wobbay.xyz" target="_blank" rel="nofollow noopener">邮箱</a>问我或者在<a href="https://github.com/liuyi0501/IwaraCollector" target="_blank" rel="nofollow noopener">Github</a>给我发issue</p>
+    </body>
+</html>

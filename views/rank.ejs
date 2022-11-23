@@ -1,0 +1,94 @@
+<!doctype html>
+<html amp lang="zh">
+    <head>
+        <meta charset="utf-8">
+        <script async src="https://cdn.jsdelivr.net/npm/macy@2"></script>
+        <script async src="https://cdn.ampproject.org/v0.js"></script>
+        <title><%= title %></title>
+        <meta name ="rating" content="adult">
+        <link rel="canonical" href="https://amp.dev/documentation/guides-and-tutorials/start/create/basic_markup/">
+        <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
+        <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+          <script>
+    !window.onload=function(){
+       var masonry = new Macy({
+        container: '.cnode', // 图像列表容器id
+        trueOrder: false,
+        waitForImages: false,
+        useOwnImageLoader: false,
+        debug: false,
+        //设计间距
+        margin: {
+            x: 10,
+            y: 10
+        },
+        //设置列数
+        columns: 4,
+        //定义不同分辨率（1200，940，520，400这些是分辨率）
+        breakAt: {
+          1200: {
+            columns: 3,
+            margin: {
+                x: 23,
+                y: 4
+            }
+          },
+          940: {
+            margin: {
+                y: 23
+            }
+          },
+          520: {
+            columns: 3,
+            margin: 3,
+          },
+          400: {
+            columns: 2
+          }
+        }
+      });
+    }
+</script>
+<style>
+img {
+    object-fit: contain;
+  }
+  </style>
+    </head>
+    <body class="mdui-theme-layout-dark">
+        <header><%- include('../config/header.html') %></header>
+        <div class="mdui-tab mdui-tab-centered mdui-color-white mdui-container" mdui-tab>
+          <a href="/rank?site=www&rank=<%= rank %>" class="<%= site=="www"?"mdui-tab-active":"" %> mdui-ripple">WWW</a>
+          <a href="/rank?site=ecchi&rank=<%= rank %>" class="<%= site=="ecchi"?"mdui-tab-active":"" %> mdui-ripple">Ecchi</a>
+        </div>
+        
+        <div class="mdui-tab mdui-tab-centered mdui-color-white mdui-container" mdui-tab>
+          <a href="/rank?site=<%= site %>&rank=daily" class="<%= site=="daily"?"mdui-tab-active":"" %> mdui-ripple">Day</a>
+          <a href="/rank?site=<%= site %>&rank=month" class="<%= site=="month"?"mdui-tab-active":"" %> mdui-ripple">Month</a>
+          <a href="/rank?site=<%= site %>&rank=year" class="<%= site=="year"?"mdui-tab-active":"" %> mdui-ripple">Year</a>
+        </div>
+        <div class="main data">
+            <div class="mdui-container mdui-center">
+            <h2><%= site %> <%= rank %> 本站内观看数排行：</h2>
+            <small>因为特殊原因，只显示链接的id，自行点击查看</small><p>前五十个</p><br/>
+                <div class="cnode mdui-container mdui-center">
+                    <% let add = 0;%>
+                    <% for(var i = 0 ; i < data.length ; i++){ %>
+                        <% if(add == 50) break; %>
+                        <% if(data[i].id.indexOf("<") != -1){ %>
+                        <% } else{ %>
+                            <% add++ %>
+                            <p><a href="/<%= site %>/video/<%= data[i].id %>">
+                                <% if(data[i].thumb){ %>
+                                    <amp-img src="https://redirect.wobbay.xyz/https:<%= data[i].thumb %>" width="1920" height="1080" layout="responsive" loading="lazy"></amp-img>
+                                <% } %>
+                                <br/>
+                                <%= data[i].title %></a>  -查看数：<%= data[i].score %></p>
+                        <% } %>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+        <footer><%- include("../config/footer.html") %></footer>
+    </body>
+</html>

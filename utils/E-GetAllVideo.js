@@ -59,6 +59,8 @@ function GetPage(LastPage, d) {
             Vid[p] = id;
             }
             console.log("第"+d+"页请求完成"+"共计"+video.length+"个视频")
+            if(!video){throw err;
+            }else{
             VideoGet(video, thumb);//开始爬取视频内容
             fs.writeFileSync('./data/ecchi/page/'+d+'.json','{"video":["'+Vid.join('","')+'"],"thumb":["'+  thumb.join('","')+'"],"title":["'+ title.join('","') +'"]}', function (err) {
                 if (err) console.log(err);//静态存储每一页的数据
@@ -66,6 +68,8 @@ function GetPage(LastPage, d) {
             d++;//页数自增
             if (d <= LastPage) GetPage(LastPage, d)//在页数小于最大页数的情况下递归
             }
+            
+        }
         }).catch(function(error){
         console.log(error)
         //throw "GetPage Err"
@@ -80,7 +84,7 @@ function VideoGet(video, thumb, q) {
     }
     let second = Date.now();
 
-    while (Number(Date.now()) <= Number(second) + 2000) { //暂停2秒，防止被墙拉黑
+    while (Number(Date.now()) <= Number(second) + 100) { //暂停0.1秒，防止被墙拉黑
         //等待1秒，什么都不做
     }
     console.log("---------")
@@ -129,7 +133,7 @@ function VideoGet(video, thumb, q) {
 function GetAllVideo() {
     
     console.log("开始发送第一页请求")
-    axios.get('https://ecchi.iwara.tv/videos?sort=date&page=0', {//获取页面信息
+    axios.get('https://ecchi.iwara.tv/videos', {//获取页面信息
         referer: 'https://ecchi.iwara.tv/',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36'
     }).then(response => {
@@ -142,6 +146,7 @@ function GetAllVideo() {
         var pages = $('.pager-last').find('a').attr("href")
         //console.log(pages.indexOf('page='))
         var start = pages.indexOf('page=') 
+        //console.log(data)
         }catch(err){//排查第一页请求
             console.error(err)
             let second = Date.now();
@@ -192,6 +197,11 @@ function GetAllVideo() {
         })
         
         GetPage(PageLast)
+    }).catch((err)=>{
+        if(err){
+            console.log(err)
+            GetAllVideo()
+        }
     })
     
 
