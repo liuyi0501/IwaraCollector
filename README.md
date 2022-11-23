@@ -16,8 +16,8 @@ Iwara网站数据爬取及本地化
 - 3. node app.js
 服务器会监听 3001 ，可以在app.js中修改
 
-#API
-##接口：
+# API
+## 接口：
     1. GET /api/video/:site/:id --单一视频详细信息
                                 --多视频详细信息请见4. 
         @params :site ['www','ecchi']
